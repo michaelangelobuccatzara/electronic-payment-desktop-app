@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OIsM0kyfbFg=",
+  "dgSpecHash": "WV4HCd3ltys=",
   "success": true,
-  "projectFilePath": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/ElectronicPaymentApp/ElectronicPaymentApp.csproj",
+  "projectFilePath": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/electronic-payment-desktop-app/ElectronicPaymentApp.csproj",
   "expectedPackageFiles": [
     "/home/michael-angelo-buccat-zara/.nuget/packages/avalonia/12.1.4/avalonia.12.1.4.nupkg.sha512",
     "/home/michael-angelo-buccat-zara/.nuget/packages/avalonia.angle.windows.natives/2.1.27548.20260419/avalonia.angle.windows.natives.2.1.27548.20260419.nupkg.sha512",

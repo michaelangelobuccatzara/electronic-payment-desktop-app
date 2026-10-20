@@ -1678,11 +1678,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/ElectronicPaymentApp/ElectronicPaymentApp.csproj",
+      "projectUniqueName": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/electronic-payment-desktop-app/ElectronicPaymentApp.csproj",
       "projectName": "ElectronicPaymentApp",
-      "projectPath": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/ElectronicPaymentApp/ElectronicPaymentApp.csproj",
+      "projectPath": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/electronic-payment-desktop-app/ElectronicPaymentApp.csproj",
       "packagesPath": "/home/michael-angelo-buccat-zara/.nuget/packages/",
-      "outputPath": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/ElectronicPaymentApp/obj/",
+      "outputPath": "/home/michael-angelo-buccat-zara/Documents/FREELANCING PROJECTS/Electronic Payment System/electronic-payment-desktop-app/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/michael-angelo-buccat-zara/.nuget/NuGet/NuGet.Config"
