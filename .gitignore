@@ -1,0 +1,190 @@
+# ============================================================
+# .gitignore — Avalonia (MVVM) / .NET solution
+# Covers: Desktop, Browser (WASM), Android, iOS heads
+# ============================================================
+
+# ---------- Build output ----------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+publish/
+*.publish/
+PublishScripts/
+
+# ---------- .NET / NuGet ----------
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+.nuget/
+*.nuget.props
+*.nuget.targets
+
+# ---------- User-specific files ----------
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+launchSettings.json.user
+
+# ---------- IDEs ----------
+# Visual Studio
+.vs/
+*.vsidx
+*.VC.db
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.iml
+.idea_modules/
+
+# VS Code (keep shared config, ignore the rest)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+*.code-workspace
+
+# ---------- Tests & coverage ----------
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+coverage/
+coverage*.json
+coverage*.xml
+coverage*.info
+*.coverage
+*.coveragexml
+*.cobertura.xml
+.coverage/
+BenchmarkDotNet.Artifacts/
+
+# ---------- Profiling / diagnostics ----------
+*.dotCover
+*.dotTrace
+*.dmp
+*.mdmp
+*.diagsession
+*.nettrace
+*.speedscope.json
+
+# ---------- Avalonia specifics ----------
+# Previewer / designer temp artifacts
+.avalonia/
+*.axaml.g.cs
+*.axaml.cs.bak
+*.xaml.g.cs
+
+# Generated resources (AvaloniaResource bundles are build output)
+**/obj/**/Avalonia/
+
+# ---------- Browser (Avalonia.Browser / WASM) ----------
+**/wwwroot/_framework/
+**/AppBundle/
+**/bin/**/AppBundle/
+node_modules/
+package-lock.json.bak
+
+# ---------- Android head ----------
+*.apk
+*.aab
+*.ap_
+*.dex
+.gradle/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+**/Resources/Resource.designer.cs
+*.keystore
+*.jks
+
+# ---------- iOS / macOS head ----------
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.ipa
+*.dSYM/
+*.dSYM.zip
+DerivedData/
+build/
+*.mobileprovision
+*.p12
+
+# ---------- Desktop packaging ----------
+*.msi
+*.msix
+*.msixbundle
+*.appx
+*.appxbundle
+*.AppImage
+*.deb
+*.rpm
+*.dmg
+*.pkg
+*.app/
+*.zip
+*.tar.gz
+!/assets/**/*.zip
+
+# ---------- Local config & secrets ----------
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+*.pfx
+*.snk
+*.pem
+*.key
+!**/*.public.key
+
+# ---------- Local databases (SQLite, LiteDB, etc.) ----------
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.litedb
+*.mdf
+*.ldf
+
+# ---------- Logs ----------
+*.log
+logs/
+
+# ---------- Tooling ----------
+.config/dotnet-tools.json.bak
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+.ionide/
+.fake/
+.paket/
+.cache/
+.tmp/
+*.tmp
+*.swp
+*~
+
+# ---------- OS files ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.directory
+.Trash-*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
