@@ -1,0 +1,246 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ElectronicPaymentApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+             x:Class="ElectronicPaymentApp.Views.AccountSummaryView"
+             x:DataType="vm:AccountSummaryViewModel">
+
+    <UserControl.Styles>
+        <!-- Small caption above each value -->
+        <Style Selector="TextBlock.field-label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+        </Style>
+
+        <!-- Value under each caption -->
+        <Style Selector="TextBlock.field-value">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="LineHeight" Value="28" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+        </Style>
+
+        <!-- Section heading row: icon + title with a divider underneath -->
+        <Style Selector="Border.section-title">
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SurfaceHighBrush}" />
+            <Setter Property="Padding" Value="0,0,0,12" />
+            <Setter Property="Margin" Value="0,0,0,24" />
+        </Style>
+        <Style Selector="Border.section-title PathIcon">
+            <Setter Property="Width" Value="22" />
+            <Setter Property="Height" Value="22" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryContainerBrush}" />
+        </Style>
+        <Style Selector="Border.section-title TextBlock">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="LineHeight" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+        </Style>
+
+        <!-- Large touch button -->
+        <Style Selector="Button.action-button">
+            <Setter Property="MinWidth" Value="240" />
+            <Setter Property="MinHeight" Value="56" />
+            <Setter Property="Padding" Value="32,14" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceHighBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.action-button /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SurfaceHighBrush}" />
+            <Setter Property="BoxShadow" Value="0 1 2 0 #0D000000" />
+        </Style>
+        <Style Selector="Button.action-button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SurfaceHighestBrush}" />
+        </Style>
+        <Style Selector="Button.action-button:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+        </Style>
+        <Style Selector="Button.action-button:pressed">
+            <Setter Property="RenderTransform" Value="scale(0.98)" />
+        </Style>
+        <Style Selector="Button.action-button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SurfaceHighestBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid Background="{DynamicResource BackgroundBrush}" RowDefinitions="Auto,*">
+
+        <!-- Header banner -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource CardBrush}"
+                BorderBrush="{DynamicResource SurfaceContainerBrush}"
+                BorderThickness="0,0,0,1"
+                BoxShadow="0 1 2 0 #0D000000">
+            <Grid Height="80" MaxWidth="1024" Margin="24,0" ColumnDefinitions="*,Auto">
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <Border Width="48" Height="48"
+                            CornerRadius="12"
+                            Background="{DynamicResource PrimaryContainerBrush}"
+                            BoxShadow="0 1 2 0 #0D000000">
+                        <PathIcon Data="{StaticResource Icon.AccountBalance}"
+                                  Width="26" Height="26"
+                                  Foreground="{DynamicResource OnPrimaryBrush}" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Notre Dame Payment Kiosk"
+                                   FontSize="18" LineHeight="24" FontWeight="SemiBold"
+                                   LetterSpacing="-0.45"
+                                   Foreground="{DynamicResource OnSurfaceBrush}" />
+                        <TextBlock Text="Check Account"
+                                   FontSize="13" LineHeight="18" FontWeight="Medium"
+                                   Foreground="{DynamicResource MutedBrush}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Terminal status chip (static text from the design for now) -->
+                <Border Grid.Column="1"
+                        VerticalAlignment="Center"
+                        CornerRadius="999"
+                        Padding="16,6"
+                        Background="{DynamicResource SurfaceLowBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="10" Height="10"
+                                 Fill="{DynamicResource PrimaryContainerBrush}"
+                                 VerticalAlignment="Center" />
+                        <TextBlock Text="Terminal #01 • Online"
+                                   FontSize="13" LineHeight="18" FontWeight="Medium"
+                                   Foreground="{DynamicResource OnSurfaceBrush}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Main content (scrolls if the window is too short) -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Margin="0,0,0,32">
+            <Border MaxWidth="976"
+                    Margin="24,40"
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource CardBrush}"
+                    BorderBrush="{DynamicResource SurfaceContainerBrush}"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="40"
+                    BoxShadow="0 1 2 0 #0D000000">
+
+                <StackPanel Spacing="40">
+
+                    <!-- Personal Information -->
+                    <StackPanel>
+                        <Border Classes="section-title">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource Icon.Person}" VerticalAlignment="Center" />
+                                <TextBlock Text="Personal Information" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,24,*,24,*,24,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="field-label" Text="School ID" />
+                                <TextBlock Classes="field-value"
+                                           FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono"
+                                           Text="{Binding SchoolId}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Classes="field-label" Text="First Name" />
+                                <TextBlock Classes="field-value" Text="{Binding FirstName}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="4" Spacing="4">
+                                <TextBlock Classes="field-label" Text="Middle Name" />
+                                <TextBlock Classes="field-value" Text="{Binding MiddleName}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="6" Spacing="4">
+                                <TextBlock Classes="field-label" Text="Last Name" />
+                                <TextBlock Classes="field-value" Text="{Binding LastName}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Financial Information -->
+                    <StackPanel>
+                        <Border Classes="section-title">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource Icon.AccountBalanceWallet}" VerticalAlignment="Center" />
+                                <TextBlock Text="Financial Information" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Prominent balance -->
+                        <Border Margin="0,0,0,24"
+                                Padding="20"
+                                CornerRadius="12"
+                                Background="{DynamicResource SurfaceLowBrush}"
+                                BorderBrush="{DynamicResource PrimaryContainerSubtleBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="BALANCE"
+                                           FontSize="13" FontWeight="Medium"
+                                           LetterSpacing="0.65"
+                                           Foreground="{DynamicResource MutedBrush}" />
+                                <TextBlock Text="{Binding BalanceText}"
+                                           FontSize="48" LineHeight="56" FontWeight="Bold"
+                                           LetterSpacing="-0.96"
+                                           Foreground="{DynamicResource PrimaryBrush}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,24,*,24,*,24,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="field-label" Text="Credit" />
+                                <TextBlock Classes="field-value" Text="{Binding CreditText}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Classes="field-label" Text="Monthly Payment" />
+                                <TextBlock Classes="field-value" Text="{Binding MonthlyPaymentText}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="4" Spacing="4">
+                                <TextBlock Classes="field-label" Text="Promissory Applied" />
+                                <TextBlock Classes="field-value" Text="{Binding PromissoryAppliedText}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="6" Spacing="4">
+                                <TextBlock Classes="field-label" Text="Approved Amount" />
+                                <TextBlock Classes="field-value" Text="{Binding ApprovedAmountText}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Single navigation action -->
+                    <Button Classes="action-button"
+                            HorizontalAlignment="Center"
+                            Margin="0,16,0,0"
+                            Command="{Binding BackToHomeCommand}"
+                            AutomationProperties.Name="Back to Home">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource Icon.ArrowBack}"
+                                      Width="22" Height="22"
+                                      VerticalAlignment="Center" />
+                            <TextBlock Text="Back to Home" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

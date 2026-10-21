@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ElectronicPaymentApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ElectronicPaymentApp.Views.MainMenuView"
+             x:DataType="vm:MainMenuViewModel">
+
+    <Design.DataContext>
+        <vm:MainMenuViewModel />
+    </Design.DataContext>
+
+    <UserControl.Styles>
+        <!-- Large touch card used for the two main menu choices. -->
+        <Style Selector="Button.menu-card">
+            <Setter Property="Width" Value="288" />
+            <Setter Property="Height" Value="208" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DividerSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!-- Resting: white card with a soft grounding shadow. -->
+        <Style Selector="Button.menu-card /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DividerSubtleBrush}" />
+            <Setter Property="BoxShadow" Value="0 1 2 0 #0D000000" />
+        </Style>
+
+        <!-- Hover: stronger shadow and a primary-tinted border. -->
+        <Style Selector="Button.menu-card:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHoverBorderBrush}" />
+            <Setter Property="BoxShadow" Value="0 4 6 -1 #1A000000, 0 2 4 -2 #1A000000" />
+        </Style>
+
+        <!-- Keyboard focus: solid primary border so the ring is clearly visible. -->
+        <Style Selector="Button.menu-card:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+        </Style>
+
+        <!-- Pressed: the card sinks to 95% of its size. -->
+        <Style Selector="Button.menu-card:pressed">
+            <Setter Property="RenderTransform" Value="scale(0.95)" />
+        </Style>
+        <Style Selector="Button.menu-card:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHoverBorderBrush}" />
+            <Setter Property="BoxShadow" Value="0 1 2 0 #0D000000" />
+        </Style>
+
+        <Style Selector="Button.menu-card PathIcon">
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Button.menu-card TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="LetterSpacing" Value="-0.6" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid Background="{DynamicResource BackgroundBrush}">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="40"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+            <Button Classes="menu-card"
+                    Command="{Binding PayTuitionCommand}"
+                    AutomationProperties.Name="Pay Tuition">
+                <StackPanel Spacing="16">
+                    <PathIcon Data="{StaticResource Icon.Payments}" />
+                    <TextBlock Text="Pay Tuition" />
+                </StackPanel>
+            </Button>
+
+            <Button Classes="menu-card"
+                    Command="{Binding CheckAccountCommand}"
+                    AutomationProperties.Name="Check Account">
+                <StackPanel Spacing="16">
+                    <PathIcon Data="{StaticResource Icon.AccountBalanceWallet}" />
+                    <TextBlock Text="Check Account" />
+                </StackPanel>
+            </Button>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

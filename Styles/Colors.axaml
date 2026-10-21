@@ -1,0 +1,67 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Project color palette. Keys are role-based so pages never hard-code hex values. -->
+
+    <!-- Primary -->
+    <Color x:Key="PrimaryColor">#004c1c</Color>
+    <Color x:Key="PrimaryContainerColor">#1d652f</Color>
+    <Color x:Key="OnPrimaryColor">#ffffff</Color>
+
+    <!-- Secondary -->
+    <Color x:Key="SecondaryColor">#356942</Color>
+    <Color x:Key="SecondaryContainerColor">#b4eebc</Color>
+
+    <!-- Tertiary (pending / needs attention) -->
+    <Color x:Key="TertiaryColor">#523e00</Color>
+    <Color x:Key="TertiaryContainerColor">#6f5400</Color>
+    <Color x:Key="TertiaryFixedColor">#ffdf96</Color>
+
+    <!-- Error -->
+    <Color x:Key="ErrorColor">#ba1a1a</Color>
+    <Color x:Key="ErrorContainerColor">#ffdad6</Color>
+    <Color x:Key="OnErrorContainerColor">#93000a</Color>
+
+    <!-- Surfaces -->
+    <Color x:Key="BackgroundColor">#f9f9ff</Color>
+    <Color x:Key="CardColor">#ffffff</Color>
+    <Color x:Key="SurfaceLowColor">#f0f3ff</Color>
+    <Color x:Key="SurfaceContainerColor">#e7eeff</Color>
+    <Color x:Key="SurfaceHighColor">#dfe8fc</Color>
+
+    <!-- Text and lines -->
+    <Color x:Key="OnSurfaceColor">#131c2a</Color>
+    <Color x:Key="MutedColor">#40493f</Color>
+    <Color x:Key="OutlineColor">#707a6e</Color>
+    <Color x:Key="DividerColor">#c0c9bc</Color>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="PrimaryContainerBrush" Color="{StaticResource PrimaryContainerColor}" />
+    <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource OnPrimaryColor}" />
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}" />
+    <SolidColorBrush x:Key="SecondaryContainerBrush" Color="{StaticResource SecondaryContainerColor}" />
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource TertiaryColor}" />
+    <SolidColorBrush x:Key="TertiaryContainerBrush" Color="{StaticResource TertiaryContainerColor}" />
+    <SolidColorBrush x:Key="TertiaryFixedBrush" Color="{StaticResource TertiaryFixedColor}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+    <SolidColorBrush x:Key="ErrorContainerBrush" Color="{StaticResource ErrorContainerColor}" />
+    <SolidColorBrush x:Key="OnErrorContainerBrush" Color="{StaticResource OnErrorContainerColor}" />
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
+    <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}" />
+    <SolidColorBrush x:Key="SurfaceLowBrush" Color="{StaticResource SurfaceLowColor}" />
+    <SolidColorBrush x:Key="SurfaceContainerBrush" Color="{StaticResource SurfaceContainerColor}" />
+    <SolidColorBrush x:Key="SurfaceHighBrush" Color="{StaticResource SurfaceHighColor}" />
+    <SolidColorBrush x:Key="OnSurfaceBrush" Color="{StaticResource OnSurfaceColor}" />
+    <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}" />
+    <SolidColorBrush x:Key="OutlineBrush" Color="{StaticResource OutlineColor}" />
+    <SolidColorBrush x:Key="DividerBrush" Color="{StaticResource DividerColor}" />
+
+    <!-- Translucent variants used by the menu cards (divider at 40%, primary at 50%). -->
+    <SolidColorBrush x:Key="DividerSubtleBrush" Color="{StaticResource DividerColor}" Opacity="0.4" />
+    <SolidColorBrush x:Key="PrimaryHoverBorderBrush" Color="{StaticResource PrimaryColor}" Opacity="0.5" />
+
+    <Color x:Key="SurfaceHighestColor">#dae2fd</Color>
+    <SolidColorBrush x:Key="SurfaceHighestBrush" Color="{StaticResource SurfaceHighestColor}" />
+    <SolidColorBrush x:Key="PrimaryContainerSubtleBrush" Color="{StaticResource PrimaryContainerColor}" Opacity="0.2" />
+
+</ResourceDictionary>
