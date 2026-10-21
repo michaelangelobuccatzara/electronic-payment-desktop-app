@@ -3,6 +3,20 @@
 # Covers: Desktop, Browser (WASM), Android, iOS heads
 # ============================================================
 
+# Build output
+bin/
+obj/
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Misc
+*.log
+
 # ---------- Build output ----------
 [Bb]in/
 [Oo]bj/
