@@ -25,11 +25,7 @@ public partial class TapIdViewModel : ViewModelBase
     public TapIdViewModel(TapPurpose purpose)
     {
         Purpose = purpose;
-
-        if (purpose == TapPurpose.CheckAccount)
-        {
-            _ = SimulateTapAsync();
-        }
+        _ = SimulateTapAsync();
     }
 
     public TapPurpose Purpose { get; }

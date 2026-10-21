@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ElectronicPaymentApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ElectronicPaymentApp.Views.InsertMoneyView"
+             x:DataType="vm:InsertMoneyViewModel">
+
+    <Border Background="{DynamicResource BackgroundBrush}" Padding="24">
+        <StackPanel MaxWidth="896"
+                    Margin="24,0"
+                    Spacing="32"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+            <TextBlock Text="Insert your money into the bill acceptor"
+                       FontSize="28" LineHeight="36" FontWeight="SemiBold"
+                       LetterSpacing="-0.7"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource OnSurfaceBrush}" />
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="{Binding StudentNameText}"
+                           FontSize="18" LineHeight="24" FontWeight="Normal"
+                           TextAlignment="Center"
+                           Foreground="{DynamicResource MutedBrush}" />
+
+                <TextBlock Text="{Binding StudentIdText}"
+                           FontSize="18" LineHeight="24" FontWeight="Normal"
+                           TextAlignment="Center"
+                           Foreground="{DynamicResource MutedBrush}" />
+            </StackPanel>
+
+            <TextBlock Text="{Binding AmountText}"
+                       Margin="0,16,0,0"
+                       FontSize="48" LineHeight="56" FontWeight="Bold"
+                       LetterSpacing="-1.2"
+                       TextAlignment="Center"
+                       Foreground="{DynamicResource PrimaryContainerBrush}" />
+        </StackPanel>
+    </Border>
+</UserControl>

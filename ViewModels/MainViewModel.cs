@@ -29,8 +29,21 @@ public partial class MainViewModel : ViewModelBase
     {
         var page = new TapIdViewModel(purpose);
         page.BackToHomeRequested += (_, _) => ShowMainMenu();
-        page.IdTapped += (_, _) => ShowAccountSummary();
+        page.IdTapped += (_, _) => ShowPageAfterTap(purpose);
         CurrentPage = page;
+    }
+
+    private void ShowPageAfterTap(TapPurpose purpose)
+    {
+        switch (purpose)
+        {
+            case TapPurpose.CheckAccount:
+                ShowAccountSummary();
+                break;
+            case TapPurpose.PayTuition:
+                ShowInsertMoney();
+                break;
+        }
     }
 
     private void ShowAccountSummary()
@@ -39,5 +52,14 @@ public partial class MainViewModel : ViewModelBase
         var page = new AccountSummaryViewModel(PlaceholderData.Student);
         page.BackToHomeRequested += (_, _) => ShowMainMenu();
         CurrentPage = page;
+    }
+
+    private void ShowInsertMoney()
+    {
+        // TODO: replace PlaceholderData with the tapped ID and the real inserted amount.
+        CurrentPage = new InsertMoneyViewModel(
+            PlaceholderData.PayerName,
+            PlaceholderData.PayerSchoolId,
+            PlaceholderData.InsertedAmount);
     }
 }
