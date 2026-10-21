@@ -56,10 +56,19 @@ public partial class MainViewModel : ViewModelBase
 
     private void ShowInsertMoney()
     {
-        // TODO: replace PlaceholderData with the tapped ID and the real inserted amount.
-        CurrentPage = new InsertMoneyViewModel(
+        // TODO: replace PlaceholderData with the tapped student's details and the real inserted amount.
+        var page = new InsertMoneyViewModel(
             PlaceholderData.PayerName,
             PlaceholderData.PayerSchoolId,
             PlaceholderData.InsertedAmount);
+        page.PaymentCompleted += (_, _) => ShowPaymentSuccess();
+        CurrentPage = page;
+    }
+
+    private void ShowPaymentSuccess()
+    {
+        var page = new PaymentSuccessViewModel();
+        page.Finished += (_, _) => ShowMainMenu();
+        CurrentPage = page;
     }
 }

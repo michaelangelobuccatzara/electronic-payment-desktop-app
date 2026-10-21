@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ElectronicPaymentApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ElectronicPaymentApp.Views.PaymentSuccessView"
+             x:DataType="vm:PaymentSuccessViewModel">
+
+    <Border Background="{DynamicResource BackgroundBrush}">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="12"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+            <TextBlock Text="Payment Successful!"
+                       FontSize="36" LineHeight="40" FontWeight="Bold"
+                       LetterSpacing="-0.9"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource PrimaryContainerBrush}" />
+
+            <PathIcon Data="{StaticResource Icon.Celebration}"
+                      Width="40" Height="40"
+                      VerticalAlignment="Center"
+                      Foreground="{DynamicResource PrimaryContainerBrush}" />
+        </StackPanel>
+    </Border>
+</UserControl>
