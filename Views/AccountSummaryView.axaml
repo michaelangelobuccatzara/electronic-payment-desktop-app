@@ -79,6 +79,22 @@
         <Style Selector="Button.action-button:pressed /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource SurfaceHighestBrush}" />
         </Style>
+        <Style Selector="Button.action-button.primary">
+            <Setter Property="Background" Value="{DynamicResource PrimaryContainerBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+        </Style>
+        <Style Selector="Button.action-button.primary /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PrimaryContainerBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+        </Style>
+        <Style Selector="Button.action-button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+        </Style>
+        <Style Selector="Button.action-button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+        </Style>
     </UserControl.Styles>
 
     <Grid Background="{DynamicResource BackgroundBrush}" RowDefinitions="Auto,*">
@@ -225,19 +241,34 @@
                         </Grid>
                     </StackPanel>
 
-                    <!-- Single navigation action -->
-                    <Button Classes="action-button"
-                            HorizontalAlignment="Center"
-                            Margin="0,16,0,0"
-                            Command="{Binding BackToHomeCommand}"
-                            AutomationProperties.Name="Back to Home">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <PathIcon Data="{StaticResource Icon.ArrowBack}"
-                                      Width="22" Height="22"
-                                      VerticalAlignment="Center" />
-                            <TextBlock Text="Back to Home" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
+                    <!-- Actions: Back to Home on the left, Pay Tuition on the right -->
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="16"
+                                HorizontalAlignment="Center"
+                                Margin="0,16,0,0">
+
+                        <Button Classes="action-button"
+                                Command="{Binding BackToHomeCommand}"
+                                AutomationProperties.Name="Back to Home">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource Icon.ArrowBack}"
+                                          Width="22" Height="22"
+                                          VerticalAlignment="Center" />
+                                <TextBlock Text="Back to Home" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Classes="action-button primary"
+                                Command="{Binding PayTuitionCommand}"
+                                AutomationProperties.Name="Pay Tuition">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource Icon.Payments}"
+                                          Width="22" Height="22"
+                                          VerticalAlignment="Center" />
+                                <TextBlock Text="Pay Tuition" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
 
                 </StackPanel>
             </Border>

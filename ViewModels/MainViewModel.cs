@@ -51,6 +51,7 @@ public partial class MainViewModel : ViewModelBase
         // TODO: replace PlaceholderData with the account returned by the API for the tapped ID.
         var page = new AccountSummaryViewModel(PlaceholderData.Student);
         page.BackToHomeRequested += (_, _) => ShowMainMenu();
+        page.PayTuitionRequested += (_, _) => ShowTapId(TapPurpose.PayTuition);
         CurrentPage = page;
     }
 

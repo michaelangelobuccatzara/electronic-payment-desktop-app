@@ -30,8 +30,13 @@ public partial class AccountSummaryViewModel : ViewModelBase
 
     public event EventHandler? BackToHomeRequested;
 
+    public event EventHandler? PayTuitionRequested;
+
     [RelayCommand]
     private void BackToHome() => BackToHomeRequested?.Invoke(this, EventArgs.Empty);
+
+    [RelayCommand]
+    private void PayTuition() => PayTuitionRequested?.Invoke(this, EventArgs.Empty);
 
     private static string FormatPeso(decimal amount) =>
         "₱" + amount.ToString("N2", CultureInfo.InvariantCulture);
