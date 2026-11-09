@@ -10,10 +10,6 @@
         Title="Electronic Payment"
         Background="{DynamicResource BackgroundBrush}">
 
-    <Design.DataContext>
-        <vm:MainViewModel />
-    </Design.DataContext>
-
     <!-- ViewLocator turns the current page's view model into its matching view. -->
     <ContentControl Content="{Binding CurrentPage}" />
 

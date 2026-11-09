@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using ElectronicPaymentApp.Models;
+using ElectronicPaymentApp.Services;
 
 namespace ElectronicPaymentApp.ViewModels;
 
@@ -9,11 +10,14 @@ namespace ElectronicPaymentApp.ViewModels;
 /// </summary>
 public partial class MainViewModel : ViewModelBase
 {
+    private readonly AccountApiClient _api;
+
     [ObservableProperty]
     public partial ViewModelBase CurrentPage { get; set; } = null!;
 
-    public MainViewModel()
+    public MainViewModel(AccountApiClient api)
     {
+        _api = api;
         ShowMainMenu();
     }
 
@@ -27,29 +31,16 @@ public partial class MainViewModel : ViewModelBase
 
     private void ShowTapId(TapPurpose purpose)
     {
-        var page = new TapIdViewModel(purpose);
+        var page = new TapIdViewModel(purpose, _api);
         page.BackToHomeRequested += (_, _) => ShowMainMenu();
-        page.IdTapped += (_, _) => ShowPageAfterTap(purpose);
+        page.AccountLoaded += (_, account) => ShowAccountSummary(account);
+        page.PaymentIdTapped += (_, _) => ShowInsertMoney();
         CurrentPage = page;
     }
 
-    private void ShowPageAfterTap(TapPurpose purpose)
+    private void ShowAccountSummary(StudentAccount account)
     {
-        switch (purpose)
-        {
-            case TapPurpose.CheckAccount:
-                ShowAccountSummary();
-                break;
-            case TapPurpose.PayTuition:
-                ShowInsertMoney();
-                break;
-        }
-    }
-
-    private void ShowAccountSummary()
-    {
-        // TODO: replace PlaceholderData with the account returned by the API for the tapped ID.
-        var page = new AccountSummaryViewModel(PlaceholderData.Student);
+        var page = new AccountSummaryViewModel(account);
         page.BackToHomeRequested += (_, _) => ShowMainMenu();
         page.PayTuitionRequested += (_, _) => ShowTapId(TapPurpose.PayTuition);
         CurrentPage = page;

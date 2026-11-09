@@ -11,6 +11,12 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+    <ItemGroup>
+	    <None Update="appsettings.json">
+		    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    </None>
+    </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.4" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
