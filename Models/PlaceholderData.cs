@@ -19,7 +19,5 @@ public static class PlaceholderData
     // Values shown on the Insert Money page in the design.
     public static string PayerSchoolId => "2024-00123";
 
-    public static decimal InsertedAmount => 500m;
-
     public static string PayerName => "Juan Dela Cruz";
 }

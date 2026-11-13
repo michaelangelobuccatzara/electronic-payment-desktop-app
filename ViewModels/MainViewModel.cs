@@ -11,13 +11,15 @@ namespace ElectronicPaymentApp.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly AccountApiClient _api;
+    private readonly BillAcceptorClient _billAcceptor;
 
     [ObservableProperty]
     public partial ViewModelBase CurrentPage { get; set; } = null!;
 
-    public MainViewModel(AccountApiClient api)
+    public MainViewModel(AccountApiClient api, BillAcceptorClient billAcceptor)
     {
         _api = api;
+        _billAcceptor = billAcceptor;
         ShowMainMenu();
     }
 
@@ -48,12 +50,13 @@ public partial class MainViewModel : ViewModelBase
 
     private void ShowInsertMoney()
     {
-        // TODO: replace PlaceholderData with the tapped student's details and the real inserted amount.
+        // TODO: replace the placeholder student with the tapped student's real details.
         var page = new InsertMoneyViewModel(
             PlaceholderData.PayerName,
             PlaceholderData.PayerSchoolId,
-            PlaceholderData.InsertedAmount);
+            _billAcceptor);
         page.PaymentCompleted += (_, _) => ShowPaymentSuccess();
+        page.BackToHomeRequested += (_, _) => ShowMainMenu();
         CurrentPage = page;
     }
 

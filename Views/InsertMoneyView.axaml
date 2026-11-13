@@ -39,6 +39,12 @@
                        LetterSpacing="-1.2"
                        TextAlignment="Center"
                        Foreground="{DynamicResource PrimaryContainerBrush}" />
+			<TextBlock Text="{Binding ErrorMessage}"
+		       IsVisible="{Binding HasError}"
+		       FontSize="18" LineHeight="24" FontWeight="Medium"
+		       TextAlignment="Center"
+		       TextWrapping="Wrap"
+		       Foreground="{DynamicResource ErrorBrush}" />
         </StackPanel>
     </Border>
 </UserControl>

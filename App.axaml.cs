@@ -1,11 +1,11 @@
+using System;
+using System.Net.Http;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using ElectronicPaymentApp.Services;
 using ElectronicPaymentApp.ViewModels;
 using ElectronicPaymentApp.Views;
-using System;
-using System.Net.Http;
-using ElectronicPaymentApp.Services;
 
 namespace ElectronicPaymentApp;
 
@@ -20,17 +20,20 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var settings = ApiSettings.Load();
+            var apiSettings = ApiSettings.Load();
             var httpClient = new HttpClient
             {
-                BaseAddress = settings.BaseAddress,
+                BaseAddress = apiSettings.BaseAddress,
                 Timeout = TimeSpan.FromSeconds(10),
             };
-            httpClient.DefaultRequestHeaders.Add(ApiSettings.ApiKeyHeaderName, settings.ApiKey);
+            httpClient.DefaultRequestHeaders.Add(ApiSettings.ApiKeyHeaderName, apiSettings.ApiKey);
+
+            var billAcceptor = new BillAcceptorClient(BillAcceptorSettings.Load().PortName);
+            desktop.Exit += (_, _) => billAcceptor.Dispose(); // powers the acceptor off and closes the port
 
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(new AccountApiClient(httpClient)),
+                DataContext = new MainViewModel(new AccountApiClient(httpClient), billAcceptor),
             };
         }
 
