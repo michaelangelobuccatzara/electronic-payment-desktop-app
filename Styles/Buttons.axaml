@@ -1,0 +1,63 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Large touch button -->
+    <Style Selector="Button.action-button">
+        <Setter Property="MinWidth" Value="240" />
+        <Setter Property="MinHeight" Value="56" />
+        <Setter Property="Padding" Value="32,14" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Background" Value="{DynamicResource SurfaceHighBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.action-button /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SurfaceHighBrush}" />
+        <Setter Property="BoxShadow" Value="0 1 2 0 #0D000000" />
+    </Style>
+    <Style Selector="Button.action-button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SurfaceHighestBrush}" />
+    </Style>
+    <Style Selector="Button.action-button:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.action-button:pressed">
+        <Setter Property="RenderTransform" Value="scale(0.98)" />
+    </Style>
+    <Style Selector="Button.action-button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SurfaceHighestBrush}" />
+    </Style>
+    <Style Selector="Button.action-button:disabled">
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
+    <!-- Primary variant (solid green, white text) -->
+    <Style Selector="Button.action-button.primary">
+        <Setter Property="Background" Value="{DynamicResource PrimaryContainerBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.action-button.primary /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource PrimaryContainerBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.action-button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.action-button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+    </Style>
+
+</Styles>

@@ -20,5 +20,6 @@
 
     <Application.Styles>
         <FluentTheme />
+		<StyleInclude Source="avares://ElectronicPaymentApp/Styles/Buttons.axaml" />
     </Application.Styles>
 </Application>

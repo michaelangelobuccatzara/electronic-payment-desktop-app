@@ -39,12 +39,34 @@
                        LetterSpacing="-1.2"
                        TextAlignment="Center"
                        Foreground="{DynamicResource PrimaryContainerBrush}" />
-			<TextBlock Text="{Binding ErrorMessage}"
-		       IsVisible="{Binding HasError}"
-		       FontSize="18" LineHeight="24" FontWeight="Medium"
-		       TextAlignment="Center"
-		       TextWrapping="Wrap"
-		       Foreground="{DynamicResource ErrorBrush}" />
+
+            <TextBlock Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding HasError}"
+                       FontSize="18" LineHeight="24" FontWeight="Medium"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource ErrorBrush}" />
+
+            <TextBlock Text="Processing your payment..."
+                       IsVisible="{Binding IsBusy}"
+                       FontSize="18" LineHeight="24"
+                       TextAlignment="Center"
+                       Foreground="{DynamicResource MutedBrush}" />
+
+            <!-- Shown after the first bill: lets the student finish without waiting for the timeout. -->
+            <Button Classes="action-button primary"
+                    HorizontalAlignment="Center"
+                    Margin="0,16,0,0"
+                    IsVisible="{Binding HasPayment}"
+                    Command="{Binding ProceedCommand}"
+                    AutomationProperties.Name="Proceed">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Proceed" VerticalAlignment="Center" />
+                    <PathIcon Data="{StaticResource Icon.ArrowForward}"
+                              Width="22" Height="22"
+                              VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
         </StackPanel>
     </Border>
 </UserControl>

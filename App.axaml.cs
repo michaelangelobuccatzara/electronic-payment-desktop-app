@@ -33,7 +33,10 @@ public partial class App : Application
 
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(new AccountApiClient(httpClient), billAcceptor),
+                DataContext = new MainViewModel(
+                    new AccountApiClient(httpClient),
+                    new PaymentApiClient(httpClient),
+                    billAcceptor),
             };
         }
 

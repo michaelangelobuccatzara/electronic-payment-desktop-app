@@ -2,18 +2,19 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using ElectronicPaymentApp.Services;
 
 namespace ElectronicPaymentApp.ViewModels;
 
 /// <summary>
 /// "Insert your money into the bill acceptor" page of the Pay Tuition flow.
-/// Powers the bill acceptor, shows the running total, and ends the payment when the student
-/// stops inserting bills.
+/// Powers the bill acceptor and shows the running total. The payment is closed either when the
+/// student presses Proceed or when they stop inserting bills; the amount is then sent to the backend.
 /// </summary>
 public partial class InsertMoneyViewModel : ViewModelBase
 {
-    // How long without a new bill (after at least one bill) before the payment is considered finished.
+    // How long without a new bill (after at least one bill) before the payment is closed automatically.
     private static readonly TimeSpan PaymentIdleTimeout = TimeSpan.FromSeconds(30);
 
     // How long to wait for the first bill before giving up and returning to the main menu.
@@ -22,14 +23,24 @@ public partial class InsertMoneyViewModel : ViewModelBase
     private static readonly TimeSpan IdleCheckInterval = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan ErrorDisplayDuration = TimeSpan.FromSeconds(5);
 
+    private readonly string _rfid;
     private readonly BillAcceptorClient _acceptor;
+    private readonly PaymentApiClient _payments;
 
-    private decimal _total;
     private long _lastActivityTicks;
+    private bool _collecting = true;   // still waiting for bills; false once the payment is being closed
+    private bool _acceptorStopped;
 
-    public InsertMoneyViewModel(string studentName, string schoolId, BillAcceptorClient acceptor)
+    public InsertMoneyViewModel(
+        string studentName,
+        string schoolId,
+        string rfid,
+        BillAcceptorClient acceptor,
+        PaymentApiClient payments)
     {
+        _rfid = rfid;
         _acceptor = acceptor;
+        _payments = payments;
 
         StudentNameText = $"Student Name: {studentName}";
         StudentIdText = $"Student ID: {schoolId}";
@@ -44,8 +55,22 @@ public partial class InsertMoneyViewModel : ViewModelBase
 
     public string StudentIdText { get; }
 
+    /// <summary>Total of the bills inserted so far.</summary>
     [ObservableProperty]
-    public partial string AmountText { get; set; } = FormatPeso(0m);
+    [NotifyPropertyChangedFor(nameof(AmountText))]
+    [NotifyPropertyChangedFor(nameof(HasPayment))]
+    [NotifyCanExecuteChangedFor(nameof(ProceedCommand))]
+    public partial decimal Total { get; set; }
+
+    public string AmountText => FormatPeso(Total);
+
+    /// <summary>True once at least one bill has been inserted (the Proceed button is shown).</summary>
+    public bool HasPayment => Total > 0;
+
+    /// <summary>True while the payment is being closed and sent to the backend.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ProceedCommand))]
+    public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasError))]
@@ -53,11 +78,16 @@ public partial class InsertMoneyViewModel : ViewModelBase
 
     public bool HasError => ErrorMessage is not null;
 
-    /// <summary>Raised when the payment has finished and money was received.</summary>
-    public event EventHandler? PaymentCompleted;
+    /// <summary>Raised when the payment has been recorded. Carries the id of the payment.</summary>
+    public event EventHandler<Guid>? PaymentCompleted;
 
     /// <summary>Raised when the page ends without a payment (bill acceptor unavailable, or nothing inserted).</summary>
     public event EventHandler? BackToHomeRequested;
+
+    private bool CanProceed() => HasPayment && !IsBusy;
+
+    [RelayCommand(CanExecute = nameof(CanProceed))]
+    private Task ProceedAsync() => FinishAsync();
 
     private async Task RunPaymentAsync()
     {
@@ -67,6 +97,7 @@ public partial class InsertMoneyViewModel : ViewModelBase
         }
         catch (BillAcceptorException ex)
         {
+            _collecting = false;
             ErrorMessage = ex.Message;
             _acceptor.Disable();
             Detach();
@@ -78,15 +109,59 @@ public partial class InsertMoneyViewModel : ViewModelBase
 
         MarkActivity();
 
-        while (!HasTimedOut())
+        while (_collecting && !HasTimedOut())
         {
             await Task.Delay(IdleCheckInterval);
         }
 
-        await EndPaymentAsync();
+        if (_collecting)
+        {
+            await FinishAsync();
+        }
     }
 
-    private async Task EndPaymentAsync()
+    /// <summary>
+    /// Closes the payment: switches the acceptor off (so the last bill is counted), then records the
+    /// payment on the backend. If recording fails, Proceed can be pressed again to retry.
+    /// </summary>
+    private async Task FinishAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        _collecting = false;
+        ErrorMessage = null;
+
+        try
+        {
+            if (!_acceptorStopped)
+            {
+                await StopAcceptorAsync();
+            }
+
+            if (Total <= 0)
+            {
+                BackToHomeRequested?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
+            var paymentId = await _payments.PayAsync(_rfid, Total);
+            PaymentCompleted?.Invoke(this, paymentId);
+        }
+        catch (ApiException ex)
+        {
+            ErrorMessage = $"{ex.Message} Press Proceed to try again.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task StopAcceptorAsync()
     {
         try
         {
@@ -100,21 +175,12 @@ public partial class InsertMoneyViewModel : ViewModelBase
         }
 
         Detach();
-
-        if (_total > 0)
-        {
-            PaymentCompleted?.Invoke(this, EventArgs.Empty);
-        }
-        else
-        {
-            BackToHomeRequested?.Invoke(this, EventArgs.Empty);
-        }
+        _acceptorStopped = true;
     }
 
     private void OnBillInserted(object? sender, BillInsertedInfo info)
     {
-        _total += info.Value;
-        AmountText = FormatPeso(_total);
+        Total += info.Value;
         ErrorMessage = null;
         MarkActivity();
     }
@@ -130,7 +196,7 @@ public partial class InsertMoneyViewModel : ViewModelBase
     private bool HasTimedOut()
     {
         var idle = TimeSpan.FromMilliseconds(Environment.TickCount64 - _lastActivityTicks);
-        return idle >= (_total > 0 ? PaymentIdleTimeout : NoBillTimeout);
+        return idle >= (Total > 0 ? PaymentIdleTimeout : NoBillTimeout);
     }
 
     // Stop listening so this page can't react to events after the user has moved on.
