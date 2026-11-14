@@ -58,5 +58,40 @@ public sealed class PaymentApiClient
         }
     }
 
+    /// <summary>GET payments/{id}/receipt.png. Returns the receipt image (PNG bytes).</summary>
+    /// <exception cref="ApiException">The request failed; the message is user-friendly.</exception>
+    public async Task<byte[]> GetReceiptAsync(Guid paymentId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var response = await _http.GetAsync($"payments/{paymentId}/receipt.png", cancellationToken);
+
+            if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            {
+                throw new ApiException("This kiosk is not authorized to use the service. Please contact the staff.");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApiException("We couldn't get your receipt right now.");
+            }
+
+            if (response.Content.Headers.ContentType?.MediaType != "image/png")
+            {
+                throw new ApiException("We received an unexpected response when getting your receipt.");
+            }
+
+            return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new ApiException("Cannot reach the server.", ex);
+        }
+        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new ApiException("The server took too long to respond.", ex);
+        }
+    }
+
     private sealed record PayRequest(string Rfid, decimal Amount);
 }

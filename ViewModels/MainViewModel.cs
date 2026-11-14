@@ -14,6 +14,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly AccountApiClient _api;
     private readonly PaymentApiClient _payments;
     private readonly BillAcceptorClient _billAcceptor;
+    private readonly ReceiptPrinter _printer = new();
 
     [ObservableProperty]
     public partial ViewModelBase CurrentPage { get; set; } = null!;
@@ -67,7 +68,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void ShowPaymentSuccess(Guid paymentId)
     {
-        var page = new PaymentSuccessViewModel(paymentId);
+        var page = new PaymentSuccessViewModel(paymentId, _payments, _printer);
         page.Finished += (_, _) => ShowMainMenu();
         CurrentPage = page;
     }
