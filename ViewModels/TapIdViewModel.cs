@@ -15,6 +15,9 @@ public enum TapPurpose
     CheckAccount,
 }
 
+/// <summary>What the Pay Tuition tap hands to the next page: the tapped ID and the student it belongs to.</summary>
+public sealed record PaymentTapInfo(string Rfid, StudentAccount Account);
+
 /// <summary>
 /// "Waiting to tap your ID on the reader..." page. Receives the tapped ID and,
 /// for Check Account, looks the account up through the API.
@@ -23,6 +26,8 @@ public partial class TapIdViewModel : ViewModelBase
 {
     private const string WaitingMessage = "Waiting to tap your ID on the reader...";
     private const string CheckingMessage = "Checking your account...";
+    private const string NoBalanceMessage = "You have no balance. You cannot perform payment at this moment.";
+    private static readonly TimeSpan NoBalanceDisplayDuration = TimeSpan.FromSeconds(5);
 
     private readonly AccountApiClient _api;
     private readonly CancellationTokenSource _cancellation = new();
@@ -49,8 +54,8 @@ public partial class TapIdViewModel : ViewModelBase
     /// <summary>Raised when the account for the tapped ID has been loaded (Check Account).</summary>
     public event EventHandler<StudentAccount>? AccountLoaded;
 
-    /// <summary>Raised when an ID has been tapped for a tuition payment (Pay Tuition).</summary>
-    public event EventHandler<string>? PaymentIdTapped;
+    /// <summary>Raised when an ID has been tapped for a tuition payment (Pay Tuition) by a student with a balance.</summary>
+    public event EventHandler<PaymentTapInfo>? PaymentIdTapped;
 
     public event EventHandler? BackToHomeRequested;
 
@@ -73,12 +78,6 @@ public partial class TapIdViewModel : ViewModelBase
 
         rfid = rfid.Trim();
 
-        if (Purpose == TapPurpose.PayTuition)
-        {
-            PaymentIdTapped?.Invoke(this, rfid);
-            return;
-        }
-
         IsBusy = true;
         ErrorMessage = null;
         Message = CheckingMessage;
@@ -86,7 +85,23 @@ public partial class TapIdViewModel : ViewModelBase
         try
         {
             var account = await _api.GetAccountAsync(rfid, _cancellation.Token);
-            AccountLoaded?.Invoke(this, account);
+
+            if (Purpose == TapPurpose.CheckAccount)
+            {
+                AccountLoaded?.Invoke(this, account);
+                return;
+            }
+
+            // Pay Tuition is only for students who still owe something.
+            if (account.Balance <= 0)
+            {
+                Message = NoBalanceMessage;
+                await Task.Delay(NoBalanceDisplayDuration, _cancellation.Token);
+                BackToHomeRequested?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
+            PaymentIdTapped?.Invoke(this, new PaymentTapInfo(rfid, account));
         }
         catch (ApiException ex)
         {
@@ -96,7 +111,7 @@ public partial class TapIdViewModel : ViewModelBase
         }
         catch (OperationCanceledException)
         {
-            // The user pressed Back to Home while the request was running.
+            // The user pressed Back to Home while the request (or the 5-second message) was running.
         }
         finally
         {

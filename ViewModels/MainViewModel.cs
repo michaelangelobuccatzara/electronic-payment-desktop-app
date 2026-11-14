@@ -1,7 +1,8 @@
-using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ElectronicPaymentApp.Models;
 using ElectronicPaymentApp.Services;
+using System;
+using System.Linq;
 
 namespace ElectronicPaymentApp.ViewModels;
 
@@ -40,7 +41,7 @@ public partial class MainViewModel : ViewModelBase
         var page = new TapIdViewModel(purpose, _api);
         page.BackToHomeRequested += (_, _) => ShowMainMenu();
         page.AccountLoaded += (_, account) => ShowAccountSummary(account);
-        page.PaymentIdTapped += (_, rfid) => ShowInsertMoney(rfid);
+        page.PaymentIdTapped += (_, tap) => ShowInsertMoney(tap);
         CurrentPage = page;
     }
 
@@ -52,13 +53,18 @@ public partial class MainViewModel : ViewModelBase
         CurrentPage = page;
     }
 
-    private void ShowInsertMoney(string rfid)
+    private void ShowInsertMoney(PaymentTapInfo tap)
     {
-        // TODO: replace the placeholder student name and ID with the tapped student's real details.
+        var account = tap.Account;
+        var studentName = string.Join(
+            ' ',
+            new[] { account.FirstName, account.MiddleName, account.LastName }
+                .Where(part => !string.IsNullOrWhiteSpace(part)));
+
         var page = new InsertMoneyViewModel(
-            PlaceholderData.PayerName,
-            PlaceholderData.PayerSchoolId,
-            rfid,
+            studentName,
+            account.SchoolId,
+            tap.Rfid,
             _billAcceptor,
             _payments);
         page.PaymentCompleted += (_, paymentId) => ShowPaymentSuccess(paymentId);
