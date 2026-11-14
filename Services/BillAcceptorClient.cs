@@ -9,11 +9,8 @@ using Avalonia.Threading;
 
 namespace ElectronicPaymentApp.Services;
 
-/// <summary>A bill was accepted. SessionTotal is the running total of the current payment.</summary>
+/// <summary>A bill was accepted. SessionTotal is the ESP32's running total since the last fresh ACCEPTOR,ON.</summary>
 public sealed record BillInsertedInfo(int Value, decimal SessionTotal);
-
-/// <summary>The acceptor reports the payment finished (no bills inserted for a while).</summary>
-public sealed record SessionEndedInfo(uint Id, decimal Total, int Bills);
 
 /// <summary>A bill acceptor problem. The message is safe to show to the user.</summary>
 public sealed class BillAcceptorException : Exception
@@ -27,25 +24,31 @@ public sealed class BillAcceptorException : Exception
 /// <summary>
 /// Talks to the ESP32 that controls the bill acceptor over a serial port.
 /// Protocol (one text line per message):
-///   app  -> ESP32: ACCEPTOR,ON | ACCEPTOR,OFF | ACK,&lt;id&gt;
-///   ESP32 -> app : OK,ACCEPTOR,ON | BILL,&lt;value&gt;,&lt;total&gt; | SESSION_END,&lt;id&gt;,&lt;total&gt;,&lt;bills&gt; | ERR,UNKNOWN_PULSES,&lt;n&gt;
-/// Events are raised on the UI thread.
+///   app   -> ESP32: ACCEPTOR,ON | ACCEPTOR,OFF
+///   ESP32 -> app  : OK,ACCEPTOR,ON | OK,ACCEPTOR,OFF | BILL,&lt;value&gt;,&lt;total&gt; | ERR,UNKNOWN_PULSES,&lt;n&gt;
+/// After ACCEPTOR,OFF the ESP32 waits for a bill that is still going in, so any BILL line
+/// arrives before OK,ACCEPTOR,OFF. Events are raised on the UI thread.
 /// </summary>
 public sealed class BillAcceptorClient : IDisposable
 {
     private const int BaudRate = 115200; // matches Serial.begin(115200) in the ESP32 firmware
     private const int EnableAttempts = 4;
+    private const int DisableAttempts = 3;
     private const string NotRespondingMessage = "The bill acceptor is not responding. Please contact the staff.";
 
     private static readonly TimeSpan EnableConfirmTimeout = TimeSpan.FromSeconds(2);
+
+    // The firmware waits about 1.5 s for an in-flight bill before confirming OFF, and every
+    // new OFF restarts that wait, so don't resend sooner than this.
+    private static readonly TimeSpan DisableConfirmTimeout = TimeSpan.FromSeconds(4);
 
     private readonly string _portName;
     private readonly object _lock = new();
     private readonly StringBuilder _incomingLine = new();
 
     private SerialPort? _port;
-    private uint? _lastAcknowledgedId;
     private volatile TaskCompletionSource? _enableConfirmation;
+    private volatile TaskCompletionSource? _disableConfirmation;
 
     public BillAcceptorClient(string portName)
     {
@@ -53,8 +56,6 @@ public sealed class BillAcceptorClient : IDisposable
     }
 
     public event EventHandler<BillInsertedInfo>? BillInserted;
-
-    public event EventHandler<SessionEndedInfo>? SessionEnded;
 
     /// <summary>A bill was taken by the acceptor but its value was not recognized (so it was not counted).</summary>
     public event EventHandler? UnrecognizedBill;
@@ -82,34 +83,66 @@ public sealed class BillAcceptorClient : IDisposable
         throw new BillAcceptorException(NotRespondingMessage);
     }
 
-    /// <summary>Cuts power to the bill acceptor (best effort).</summary>
-    public void Disable() => TrySend("ACCEPTOR,OFF");
-
-    /// <summary>Tells the ESP32 a finished payment session has been received (best effort).</summary>
-    public void Acknowledge(uint sessionId)
+    /// <summary>
+    /// Switches the acceptor off and waits until the ESP32 confirms. Any bill that was still going in
+    /// is reported through BillInserted before this method returns.
+    /// </summary>
+    /// <exception cref="BillAcceptorException">The ESP32 could not be reached or did not confirm.</exception>
+    public async Task DisableAsync(CancellationToken cancellationToken = default)
     {
-        lock (_lock)
+        for (var attempt = 0; attempt < DisableAttempts; attempt++)
         {
-            _lastAcknowledgedId = sessionId;
-        }
+            var confirmed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _disableConfirmation = confirmed;
 
-        TrySend($"ACK,{sessionId}");
-    }
+            Send("ACCEPTOR,OFF");
 
-    public void Dispose()
-    {
-        lock (_lock)
-        {
-            if (_port is null)
+            var winner = await Task.WhenAny(confirmed.Task, Task.Delay(DisableConfirmTimeout, cancellationToken));
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (winner == confirmed.Task)
             {
                 return;
             }
+        }
 
-            TrySend("ACCEPTOR,OFF");
-            _port.DataReceived -= OnDataReceived;
-            _port.Dispose();
+        throw new BillAcceptorException(NotRespondingMessage);
+    }
+
+    /// <summary>Sends ACCEPTOR,OFF without waiting for the confirmation (best effort).</summary>
+    public void Disable() => TrySend("ACCEPTOR,OFF");
+
+    public void Dispose()
+    {
+        SerialPort? port;
+        lock (_lock)
+        {
+            port = _port;
             _port = null;
         }
+
+        if (port is null)
+        {
+            return;
+        }
+
+        // Closing the port happens outside the lock: the receive handler also takes the lock,
+        // and closing a port can wait for a running handler.
+        try
+        {
+            if (port.IsOpen)
+            {
+                port.Write("ACCEPTOR,OFF\n");
+                port.BaseStream.Flush();
+            }
+        }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException or TimeoutException or UnauthorizedAccessException)
+        {
+            // Best effort while shutting down.
+        }
+
+        port.DataReceived -= OnDataReceived;
+        port.Dispose();
     }
 
     private SerialPort EnsureOpen()
@@ -221,6 +254,12 @@ public sealed class BillAcceptorClient : IDisposable
             return;
         }
 
+        if (line == "OK,ACCEPTOR,OFF")
+        {
+            _disableConfirmation?.TrySetResult();
+            return;
+        }
+
         var parts = line.Split(',');
         switch (parts[0])
         {
@@ -228,20 +267,6 @@ public sealed class BillAcceptorClient : IDisposable
                              && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)
                              && decimal.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var runningTotal):
                 Raise(() => BillInserted?.Invoke(this, new BillInsertedInfo(value, runningTotal)));
-                break;
-
-            case "SESSION_END" when parts.Length == 4
-                                    && uint.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var id)
-                                    && decimal.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var total)
-                                    && int.TryParse(parts[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out var bills):
-                if (_lastAcknowledgedId == id)
-                {
-                    // The ESP32 repeats SESSION_END until it gets our ACK. This one was already handled.
-                    TrySend($"ACK,{id}");
-                    break;
-                }
-
-                Raise(() => SessionEnded?.Invoke(this, new SessionEndedInfo(id, total, bills)));
                 break;
 
             case "ERR" when parts.Length >= 2 && parts[1] == "UNKNOWN_PULSES":

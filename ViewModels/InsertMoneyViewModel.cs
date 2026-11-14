@@ -8,13 +8,24 @@ namespace ElectronicPaymentApp.ViewModels;
 
 /// <summary>
 /// "Insert your money into the bill acceptor" page of the Pay Tuition flow.
-/// Powers the bill acceptor, shows the running total, and finishes when the acceptor reports the session ended.
+/// Powers the bill acceptor, shows the running total, and ends the payment when the student
+/// stops inserting bills.
 /// </summary>
 public partial class InsertMoneyViewModel : ViewModelBase
 {
+    // How long without a new bill (after at least one bill) before the payment is considered finished.
+    private static readonly TimeSpan PaymentIdleTimeout = TimeSpan.FromSeconds(30);
+
+    // How long to wait for the first bill before giving up and returning to the main menu.
+    private static readonly TimeSpan NoBillTimeout = TimeSpan.FromSeconds(60);
+
+    private static readonly TimeSpan IdleCheckInterval = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan ErrorDisplayDuration = TimeSpan.FromSeconds(5);
 
     private readonly BillAcceptorClient _acceptor;
+
+    private decimal _total;
+    private long _lastActivityTicks;
 
     public InsertMoneyViewModel(string studentName, string schoolId, BillAcceptorClient acceptor)
     {
@@ -24,10 +35,9 @@ public partial class InsertMoneyViewModel : ViewModelBase
         StudentIdText = $"Student ID: {schoolId}";
 
         _acceptor.BillInserted += OnBillInserted;
-        _acceptor.SessionEnded += OnSessionEnded;
         _acceptor.UnrecognizedBill += OnUnrecognizedBill;
 
-        _ = StartAcceptingAsync();
+        _ = RunPaymentAsync();
     }
 
     public string StudentNameText { get; }
@@ -43,13 +53,13 @@ public partial class InsertMoneyViewModel : ViewModelBase
 
     public bool HasError => ErrorMessage is not null;
 
-    /// <summary>Raised when the payment has been received.</summary>
+    /// <summary>Raised when the payment has finished and money was received.</summary>
     public event EventHandler? PaymentCompleted;
 
-    /// <summary>Raised when the page can't continue (for example the bill acceptor is unavailable).</summary>
+    /// <summary>Raised when the page ends without a payment (bill acceptor unavailable, or nothing inserted).</summary>
     public event EventHandler? BackToHomeRequested;
 
-    private async Task StartAcceptingAsync()
+    private async Task RunPaymentAsync()
     {
         try
         {
@@ -57,37 +67,76 @@ public partial class InsertMoneyViewModel : ViewModelBase
         }
         catch (BillAcceptorException ex)
         {
-            Detach();
             ErrorMessage = ex.Message;
+            _acceptor.Disable();
+            Detach();
 
             await Task.Delay(ErrorDisplayDuration);
+            BackToHomeRequested?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        MarkActivity();
+
+        while (!HasTimedOut())
+        {
+            await Task.Delay(IdleCheckInterval);
+        }
+
+        await EndPaymentAsync();
+    }
+
+    private async Task EndPaymentAsync()
+    {
+        try
+        {
+            // A bill that was still going in is reported (BillInserted) before this returns,
+            // so keep listening until the acceptor has confirmed it is off.
+            await _acceptor.DisableAsync();
+        }
+        catch (BillAcceptorException)
+        {
+            // The acceptor may still be powered, but any money it reported has already been counted.
+        }
+
+        Detach();
+
+        if (_total > 0)
+        {
+            PaymentCompleted?.Invoke(this, EventArgs.Empty);
+        }
+        else
+        {
             BackToHomeRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 
     private void OnBillInserted(object? sender, BillInsertedInfo info)
     {
-        AmountText = FormatPeso(info.SessionTotal);
+        _total += info.Value;
+        AmountText = FormatPeso(_total);
+        ErrorMessage = null;
+        MarkActivity();
     }
 
     private void OnUnrecognizedBill(object? sender, EventArgs e)
     {
         ErrorMessage = "A bill could not be recognized and was not counted. Please contact the staff.";
+        MarkActivity();
     }
 
-    private void OnSessionEnded(object? sender, SessionEndedInfo info)
+    private void MarkActivity() => _lastActivityTicks = Environment.TickCount64;
+
+    private bool HasTimedOut()
     {
-        Detach();
-        _acceptor.Acknowledge(info.Id);
-        _acceptor.Disable();
-        PaymentCompleted?.Invoke(this, EventArgs.Empty);
+        var idle = TimeSpan.FromMilliseconds(Environment.TickCount64 - _lastActivityTicks);
+        return idle >= (_total > 0 ? PaymentIdleTimeout : NoBillTimeout);
     }
 
     // Stop listening so this page can't react to events after the user has moved on.
     private void Detach()
     {
         _acceptor.BillInserted -= OnBillInserted;
-        _acceptor.SessionEnded -= OnSessionEnded;
         _acceptor.UnrecognizedBill -= OnUnrecognizedBill;
     }
 
